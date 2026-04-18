@@ -170,7 +170,7 @@ SOURCE sql/init_database.sql;
 <img width="1017" height="785" alt="Image" src="https://github.com/user-attachments/assets/c2165c0d-2b86-42b0-93f3-6cae50b4ce56" />
 
 1. Abra o MySQL Workbench e conecte na instância desejada.
-2. Vá em File > Open SQL Script e selecione sql/init_database.sql, ou simplesmente copie cole o conteúdo.
+2. Vá em File > Open SQL Script e selecione sql/init_database.sql, ou simplesmente copie e cole o conteúdo.
 3. Clique no botão de execução (ícone de raio) para rodar o script.
 
 Exemplo de execução no Workbench:
@@ -191,6 +191,12 @@ Arquivo principal: wellbe_rpa_pipeline.ipynb
 
 ```bash
 jupyter notebook
+```
+
+Se você instalou JupyterLab, também pode iniciar com:
+
+```bash
+jupyter lab
 ```
 
 ### 2) Abrir o arquivo
@@ -225,7 +231,7 @@ python main.py
 
 Esse comando chama src.pipeline.run_pipeline(load_to_database=True) e executa:
 
-1. Extracao dos filmes
+1. Extração dos filmes
 2. Transformação
 3. Carga no MySQL
 4. Geração de dump SQL
@@ -248,7 +254,7 @@ Arquivos esperados:
 ## Troubleshooting
 
 1. Erro de conexão MySQL
-- Verifique se o servico MySQL esta ativo.
+- Verifique se o serviço MySQL está ativo.
 - Confirme MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD e MYSQL_DATABASE no .env.
 - Execute novamente sql/init_database.sql.
 
@@ -257,7 +263,7 @@ Arquivos esperados:
 - Confirme INVOICE_TABLE_ID e INVOICE_TARGET_INDICES no .env.
 
 3. Selenium não abre navegador
-- Atualize dependencias: pip install -r requirements.txt --upgrade
+- Atualize dependências: pip install -r requirements.txt --upgrade
 - Confirme instalação do Google Chrome.
 
 4. Notebook com import não resolvido
