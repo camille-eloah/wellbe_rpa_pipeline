@@ -1,4 +1,3 @@
-
 -- Script de criação do banco de dados
 CREATE DATABASE IF NOT EXISTS db_wellbe_movies
   CHARACTER SET utf8mb4

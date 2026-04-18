@@ -25,7 +25,7 @@ Pipeline ETL + RPA para:
 
 Fluxo principal:
 
-1. EXTRACT (Selenium): abre o site, entra em Movie Search e coleta nome + descricao dos filmes.
+1. EXTRACT (Selenium): abre o site, entra em Movie Search e coleta nome + descrição dos filmes.
 2. TRANSFORM (Pandas): limpeza de strings, remoção de nulos/vazios e deduplicação.
 3. LOAD (MySQL): cria schema (se necessario) e aplica upsert para evitar duplicidade.
 4. OUTPUTS: grava CSV/JSON e dump SQL versionado.
@@ -120,12 +120,15 @@ Variáveis disponiveis:
 - BASE_URL: url base do RPA Challenge.
 - MOVIE_SEARCH_PATH: rota da página de filmes.
 - MOVIE_QUERY: termo de busca (padrão: Avengers).
-- INVOICE_URL: url da pagina de Invoice Extraction.
+- INVOICE_URL: url da página de Invoice Extraction.
 - INVOICE_TABLE_ID: id da tabela de invoices.
-- INVOICE_TARGET_INDICES: indices para download (padrão: 2,4).
+- INVOICE_TARGET_INDICES: índices para download (padrão: 2,4).
 - TIMEOUT_SECONDS: timeout geral do Selenium.
-- HEADLESS: true/false para executar sem/ com browser visivel.
+- HEADLESS: true/false para executar sem/ com browser visível.
 - MYSQL_HOST / MYSQL_PORT / MYSQL_DATABASE / MYSQL_USER / MYSQL_PASSWORD: conexão MySQL.
+
+Importante: altere os campos de conexão do MySQL de acordo com a configuração da sua máquina/servidor.
+Os valores de exemplo podem não funcionar no seu ambiente.
 
 Exemplo de valores (já no .env.example):
 
@@ -161,6 +164,18 @@ mysql -u root -p < sql/init_database.sql
 ```sql
 SOURCE sql/init_database.sql;
 ```
+
+### Opção C: pela interface gráfica do MySQL Workbench
+
+<img width="1017" height="785" alt="Image" src="https://github.com/user-attachments/assets/c2165c0d-2b86-42b0-93f3-6cae50b4ce56" />
+
+1. Abra o MySQL Workbench e conecte na instância desejada.
+2. Vá em File > Open SQL Script e selecione sql/init_database.sql, ou simplesmente copie cole o conteúdo.
+3. Clique no botão de execução (ícone de raio) para rodar o script.
+
+Exemplo de execução no Workbench:
+
+<img width="800" height="450" alt="Image" src="https://github.com/user-attachments/assets/d61aa9d4-4b2f-4677-a229-c16189042e85" />
 
 O script faz:
 
