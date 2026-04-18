@@ -95,18 +95,72 @@ class RPAMovieScraper:
         wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, CARD_SELECTOR)))
 
     def _is_reveal_visible(self, card: Any) -> bool:
+        """Verifica se card-reveal está visível (transform translateY próximo de 0)."""
         try:
             reveal = card.find_element(By.CSS_SELECTOR, "div.card-reveal")
-            return reveal.is_displayed()
+            transform_value = self.driver.execute_script(
+                "return window.getComputedStyle(arguments[0]).transform;", 
+                reveal
+            )
+            LOGGER.debug("card-reveal transform=%s", transform_value)
+            
+            if "matrix" in transform_value:
+                matrix_values = transform_value.replace("matrix(", "").replace(")", "").split(",")
+                if len(matrix_values) >= 6:
+                    try:
+                        translate_y = float(matrix_values[5].strip())
+                        is_visible = abs(translate_y) < 10
+                        LOGGER.debug("translateY=%f, visible=%s", translate_y, is_visible)
+                        return is_visible
+                    except ValueError:
+                        pass
+            
+            return transform_value.find("translateY(0") >= 0
         except NoSuchElementException:
+            LOGGER.debug("card-reveal nao encontrado")
             return False
 
-    def _safe_close_reveal(self, card: Any) -> None:
+    def _click_to_reveal(self, card: Any) -> None:
+        """Clica para abrir o card-reveal com múltiplas estratégias."""
         try:
-            close_btn = card.find_element(By.CSS_SELECTOR, "div.card-reveal span.card-title")
-            self.driver.execute_script(JS_CLICK, close_btn)
-        except Exception:
-            return
+            activator_icon = card.find_element(By.CSS_SELECTOR, "i.activator.material-icons")
+            LOGGER.debug("Clicando no ícone activator (more_vert)")
+            self.driver.execute_script(JS_CLICK, activator_icon)
+            
+            self.driver.execute_script("""
+                const event = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+                arguments[0].dispatchEvent(event);
+            """, activator_icon)
+            LOGGER.debug("Evento de clique disparado via JavaScript")
+        except NoSuchElementException:
+            try:
+                activator_span = card.find_element(By.CSS_SELECTOR, "span.card-title.activator")
+                LOGGER.debug("Clicando no span activator")
+                self.driver.execute_script(JS_CLICK, activator_span)
+                self.driver.execute_script("""
+                    const event = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    arguments[0].dispatchEvent(event);
+                """, activator_span)
+            except NoSuchElementException:
+                LOGGER.warning("Nenhum elemento activator encontrado")
+                raise
+
+    def _safe_close_reveal(self, card: Any) -> None:
+        """Fecha o card-reveal clicando no ícone close."""
+        try:
+            close_icon = card.find_element(By.CSS_SELECTOR, "div.card-reveal i.material-icons.right")
+            self.driver.execute_script(JS_CLICK, close_icon)
+            LOGGER.debug("Card fechado com sucesso")
+        except Exception as e:
+            LOGGER.debug("Nao foi possivel fechar o card: %s", e)
 
     def extract_movies(self) -> list[MovieRecord]:
         assert self.driver is not None
@@ -121,14 +175,22 @@ class RPAMovieScraper:
             cards = self.driver.find_elements(By.CSS_SELECTOR, CARD_SELECTOR)
             card = cards[idx]
 
-            title_activator = card.find_element(By.CSS_SELECTOR, "span.card-title.activator")
-            movie_name = title_activator.text.strip()
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", card)
 
-            self.driver.execute_script(JS_CLICK, title_activator)
+            title_span = card.find_element(By.CSS_SELECTOR, "span.card-title.activator")
+            movie_name = title_span.text.strip()
+            LOGGER.info("Processando filme %d/%d: '%s'", idx + 1, total_cards, movie_name)
+
+            self._click_to_reveal(card)
             wait.until(lambda _driver, current_card=card: self._is_reveal_visible(current_card))
 
-            reveal_desc = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
-            description = reveal_desc.text.strip()
+            reveal_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
+            description = reveal_paragraph.text.strip()
+            
+            if not description:
+                LOGGER.warning("Descricao vazia para '%s'", movie_name)
+            else:
+                LOGGER.info("Descricao capturada: %d caracteres", len(description))
 
             movies.append(MovieRecord(name=movie_name, description=description))
             self._safe_close_reveal(card)
