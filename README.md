@@ -2,11 +2,16 @@
 
 Pipeline ETL + RPA para:
 
-1. Extrair filmes da pagina Movie Search no RPA Challenge.
+1. Extrair filmes da página Movie Search no RPA Challenge.
 2. Transformar e normalizar os dados.
 3. Carregar no MySQL com estratégia de upsert.
 4. Gerar artefatos de saída (CSV, JSON, SQL dump).
 5. Executar a etapa de Invoice Extraction (download dos invoices 2 e 4 + ZIP final).
+
+<figure>
+  <img width="800" height="450" alt="Dashboard final" src="https://github.com/user-attachments/assets/1714620e-e210-441a-a97a-042768d08bb7" />
+  <figcaption>Dashboard final gerado no wellbe_rpa_pipeline.ipynb</figcaption>
+</figure>
 
 ## Sumário
 

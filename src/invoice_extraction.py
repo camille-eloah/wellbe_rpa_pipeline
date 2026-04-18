@@ -44,7 +44,7 @@ class InvoiceExtractionPipeline:
 
         wait.until(EC.presence_of_element_located((By.ID, self.table_id)))
         wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, f"#{self.table_id} tr")))
-        LOGGER.info("Pagina de Invoice Extraction carregada: %s", self.driver.current_url)
+        LOGGER.info("Página de Invoice Extraction carregada: %s", self.driver.current_url)
 
     def get_invoice_links(self, target_indices: Iterable[int]) -> list[tuple[int, str]]:
         targets = {int(i) for i in target_indices}
