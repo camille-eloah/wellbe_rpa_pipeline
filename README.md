@@ -255,9 +255,9 @@ Ao final, um resumo com paths de saída é impresso no terminal.
 Arquivos esperados:
 
 - data/movies_raw.csv
-- outputs/movies_avengers_<timestamp>.csv
-- outputs/movies_avengers_<timestamp>.json
-- sql/movies_dump_<timestamp>.sql
+- outputs/movies_avengers_`<timestamp>`.csv
+- outputs/movies_avengers_`<timestamp>`.json
+- sql/movies_dump_`<timestamp>`.sql
 - outputs/invoices/invoice_2.jpg
 - outputs/invoices/invoice_4.jpg
 - outputs/invoices.zip
