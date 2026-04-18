@@ -166,7 +166,7 @@ class RPAMovieScraper:
         """Loga evidencia por card para depurar falhas de captura em runtime."""
         assert self.driver is not None
         evidence = self.driver.execute_script(
-            """
+            r"""
             const card = arguments[0];
             const revealP = card.querySelector('div.card-reveal p');
             const contentP = card.querySelector('div.card-content p');
