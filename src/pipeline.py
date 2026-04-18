@@ -8,6 +8,7 @@ import pandas as pd
 
 from .config import load_config
 from .database import MySQLMovieRepository, build_dump_sql
+from .invoice_extraction import InvoiceExtractionPipeline
 from .scraper import RPAMovieScraper
 from .utils import configure_logging, ensure_directories, normalize_movies_df, now_stamp, save_dataframe_outputs
 
@@ -21,6 +22,7 @@ def run_pipeline(load_to_database: bool = True) -> dict[str, object]:
     ensure_directories([config.data_dir, config.output_dir, config.sql_dir])
 
     LOGGER.info("Iniciando etapa EXTRACT")
+    invoice_summary: dict[str, object] = {}
     with RPAMovieScraper(
         base_url=config.base_url,
         movie_search_path=config.movie_search_path,
@@ -28,6 +30,19 @@ def run_pipeline(load_to_database: bool = True) -> dict[str, object]:
         headless=config.headless,
     ) as scraper:
         raw_movies = scraper.run(query=config.default_query)
+
+        LOGGER.info("Iniciando etapa INVOICE EXTRACTION")
+        invoice_pipeline = InvoiceExtractionPipeline(
+            driver=scraper.driver,
+            timeout_seconds=config.timeout_seconds,
+            table_id=config.invoice_table_id,
+        )
+        invoice_summary = invoice_pipeline.run(
+            invoice_url=config.invoice_url,
+            target_indices=config.invoice_target_indices,
+            invoices_output_dir=config.output_dir / "invoices",
+            zip_output_path=config.output_dir / "invoices.zip",
+        )
 
     raw_df = pd.DataFrame(raw_movies)
     raw_data_path = config.data_dir / "movies_raw.csv"
@@ -68,6 +83,7 @@ def run_pipeline(load_to_database: bool = True) -> dict[str, object]:
         "raw_data_path": str(raw_data_path),
         "output_files": {k: str(v) for k, v in output_files.items()},
         "dump_path": str(dump_path),
+        "invoice_summary": invoice_summary,
     }
     LOGGER.info("Pipeline finalizado")
     return summary

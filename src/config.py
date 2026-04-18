@@ -15,6 +15,9 @@ class AppConfig:
     base_url: str
     movie_search_path: str
     default_query: str
+    invoice_url: str
+    invoice_table_id: str
+    invoice_target_indices: tuple[int, ...]
     timeout_seconds: int
     headless: bool
     output_dir: Path
@@ -33,6 +36,19 @@ def _to_bool(raw_value: str, default: bool) -> bool:
     return raw_value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _parse_indices(raw_value: str | None, default: tuple[int, ...]) -> tuple[int, ...]:
+    if not raw_value:
+        return default
+
+    values: list[int] = []
+    for token in raw_value.split(","):
+        token = token.strip()
+        if token.isdigit():
+            values.append(int(token))
+
+    return tuple(values) if values else default
+
+
 def load_config() -> AppConfig:
     load_dotenv(dotenv_path=ROOT_DIR / ".env", override=False)
 
@@ -40,6 +56,9 @@ def load_config() -> AppConfig:
         base_url=os.getenv("BASE_URL", "https://rpachallenge.com/"),
         movie_search_path=os.getenv("MOVIE_SEARCH_PATH", "/movieSearch"),
         default_query=os.getenv("MOVIE_QUERY", "Avengers"),
+        invoice_url=os.getenv("INVOICE_URL", "https://rpachallengeocr.azurewebsites.net/"),
+        invoice_table_id=os.getenv("INVOICE_TABLE_ID", "tableSandbox"),
+        invoice_target_indices=_parse_indices(os.getenv("INVOICE_TARGET_INDICES", "2,4"), default=(2, 4)),
         timeout_seconds=int(os.getenv("TIMEOUT_SECONDS", "15")),
         headless=_to_bool(os.getenv("HEADLESS", "true"), default=True),
         output_dir=ROOT_DIR / "outputs",
