@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
@@ -13,7 +14,7 @@ LOGGER_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 
 
 def configure_logging(level: int = logging.INFO) -> None:
-    logging.basicConfig(level=level, format=LOGGER_FORMAT)
+    logging.basicConfig(level=level, format=LOGGER_FORMAT, stream=sys.stdout, force=True)
 
 
 def ensure_directories(paths: Iterable[Path]) -> None:

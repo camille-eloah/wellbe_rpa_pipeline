@@ -162,6 +162,107 @@ class RPAMovieScraper:
         except Exception as e:
             LOGGER.debug("Nao foi possivel fechar o card: %s", e)
 
+    def _log_card_evidence(self, card: Any, idx: int) -> None:
+        """Loga evidencia por card para depurar falhas de captura em runtime."""
+        assert self.driver is not None
+        evidence = self.driver.execute_script(
+            """
+            const card = arguments[0];
+            const revealP = card.querySelector('div.card-reveal p');
+            const contentP = card.querySelector('div.card-content p');
+            const revealText = revealP ? (revealP.textContent || '').trim() : '';
+            const contentText = contentP ? (contentP.textContent || '').trim() : '';
+            const revealEl = card.querySelector('div.card-reveal');
+            const revealStyle = revealEl ? (revealEl.getAttribute('style') || '') : '';
+            const outer = (card.outerHTML || '').replace(/\s+/g, ' ').trim();
+            const outerShort = outer.length > 700 ? outer.slice(0, 700) + ' ...' : outer;
+
+            return {
+                reveal_len: revealText.length,
+                content_len: contentText.length,
+                reveal_style: revealStyle,
+                outer_short: outerShort,
+            };
+            """,
+            card,
+        )
+
+        LOGGER.debug(
+            "EVIDENCIA card=%d | reveal_len=%s | content_len=%s | reveal_style=%s",
+            idx + 1,
+            evidence.get("reveal_len"),
+            evidence.get("content_len"),
+            evidence.get("reveal_style"),
+        )
+        LOGGER.debug("EVIDENCIA card=%d | outerHTML_resumido=%s", idx + 1, evidence.get("outer_short"))
+
+    def _read_reveal_texts(self, card: Any) -> tuple[str, str]:
+        movie_name = ""
+        description = ""
+
+        try:
+            reveal_title = card.find_element(By.CSS_SELECTOR, "div.card-reveal span.card-title")
+            title_text = (reveal_title.get_attribute("textContent") or "").strip()
+            movie_name = title_text.replace("close", "").strip()
+        except NoSuchElementException:
+            movie_name = ""
+
+        try:
+            reveal_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
+            description = (reveal_paragraph.get_attribute("textContent") or "").strip()
+        except NoSuchElementException:
+            description = ""
+
+        return movie_name, description
+
+    def _read_content_fallback(self, card: Any) -> tuple[str, str]:
+        movie_name = ""
+        description = ""
+
+        try:
+            content_title = card.find_element(By.CSS_SELECTOR, "span.card-title.activator")
+            movie_name = (content_title.get_attribute("textContent") or "").strip()
+        except NoSuchElementException:
+            movie_name = ""
+
+        try:
+            content_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-content p")
+            description = (content_paragraph.get_attribute("textContent") or "").strip()
+        except NoSuchElementException:
+            description = ""
+
+        return movie_name, description
+
+    def _fallback_click_extract(self, card: Any, idx: int, wait: WebDriverWait) -> str:
+        LOGGER.debug("Fallback de clique acionado no card %d", idx + 1)
+        try:
+            self._click_to_reveal(card)
+            wait.until(lambda _driver, current_card=card: self._is_reveal_visible(current_card))
+            self._log_card_evidence(card=card, idx=idx)
+            reveal_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
+            return (reveal_paragraph.get_attribute("textContent") or "").strip()
+        except Exception:
+            LOGGER.debug("Nao foi possivel confirmar reveal visivel no card %d", idx + 1)
+            return ""
+
+    def _extract_name_description_from_card(self, card: Any, idx: int, wait: WebDriverWait) -> tuple[str, str]:
+        """Extrai nome e descricao de um card com prioridade para card-reveal e fallback robusto."""
+        self._log_card_evidence(card=card, idx=idx)
+        movie_name, description = self._read_reveal_texts(card)
+
+        if not description or description.endswith("..."):
+            clicked_description = self._fallback_click_extract(card=card, idx=idx, wait=wait)
+            if clicked_description:
+                description = clicked_description
+
+        content_name, content_description = self._read_content_fallback(card)
+        if not description:
+            description = content_description
+        if not movie_name:
+            movie_name = content_name
+
+        return movie_name, description
+
     def extract_movies(self) -> list[MovieRecord]:
         assert self.driver is not None
         wait = self._wait()
@@ -176,17 +277,9 @@ class RPAMovieScraper:
             card = cards[idx]
 
             self.driver.execute_script("arguments[0].scrollIntoView(true);", card)
+            movie_name, description = self._extract_name_description_from_card(card=card, idx=idx, wait=wait)
 
-            title_span = card.find_element(By.CSS_SELECTOR, "span.card-title.activator")
-            movie_name = title_span.text.strip()
             LOGGER.info("Processando filme %d/%d: '%s'", idx + 1, total_cards, movie_name)
-
-            self._click_to_reveal(card)
-            wait.until(lambda _driver, current_card=card: self._is_reveal_visible(current_card))
-
-            reveal_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
-            description = reveal_paragraph.text.strip()
-            
             if not description:
                 LOGGER.warning("Descricao vazia para '%s'", movie_name)
             else:
