@@ -8,10 +8,10 @@ Pipeline ETL + RPA para:
 4. Gerar artefatos de saída (CSV, JSON, SQL dump).
 5. Executar a etapa de Invoice Extraction (download dos invoices 2 e 4 + ZIP final).
 
-<figure>
-    <img width="800" height="450" alt="Image" src="https://github.com/user-attachments/assets/fe25364a-7bb7-4fb7-a170-7d767a7c80a1" />
-  <figcaption style="text-align:center;font-size:12px;color:#6b7280;font-style:italic;margin-top:6px;">Dashboard final gerado no wellbe_rpa_pipeline.ipynb</figcaption>
-</figure>
+<p align="center">
+  <img width="800" height="450" alt="Dashboard final" src="https://github.com/user-attachments/assets/fe25364a-7bb7-4fb7-a170-7d767a7c80a1" />
+</p>
+<p align="center"><sub><em>Dashboard final gerado no wellbe_rpa_pipeline.ipynb</em></sub></p>
 
 ## Sumário
 
@@ -172,7 +172,10 @@ SOURCE sql/init_database.sql;
 
 ### Opção C: pela interface gráfica do MySQL Workbench
 
-<img width="1017" height="785" alt="Image" src="https://github.com/user-attachments/assets/c2165c0d-2b86-42b0-93f3-6cae50b4ce56" />
+<p align="center">
+  <img width="1017" height="785" alt="MySQL Workbench - script init_database.sql" src="https://github.com/user-attachments/assets/c2165c0d-2b86-42b0-93f3-6cae50b4ce56" />
+</p>
+<p align="center"><sub><em>Script init_database.sql no MySQL Workbench</em></sub></p>
 
 1. Abra o MySQL Workbench e conecte na instância desejada.
 2. Vá em File > Open SQL Script e selecione sql/init_database.sql, ou simplesmente copie e cole o conteúdo.
@@ -180,7 +183,10 @@ SOURCE sql/init_database.sql;
 
 Exemplo de execução no Workbench:
 
-<img width="800" height="450" alt="Image" src="https://github.com/user-attachments/assets/d61aa9d4-4b2f-4677-a229-c16189042e85" />
+<p align="center">
+  <img width="800" height="450" alt="MySQL Workbench - execução" src="https://github.com/user-attachments/assets/d61aa9d4-4b2f-4677-a229-c16189042e85" />
+</p>
+<p align="center"><sub><em>Execução do script no Workbench</em></sub></p>
 
 O script faz:
 
