@@ -9,8 +9,8 @@ Pipeline ETL + RPA para:
 5. Executar a etapa de Invoice Extraction (download dos invoices 2 e 4 + ZIP final).
 
 <figure>
-  <img width="800" height="450" alt="Dashboard final" src="https://github.com/user-attachments/assets/1714620e-e210-441a-a97a-042768d08bb7" />
-  <figcaption>Dashboard final gerado no wellbe_rpa_pipeline.ipynb</figcaption>
+    <img width="800" height="450" alt="Image" src="https://github.com/user-attachments/assets/fe25364a-7bb7-4fb7-a170-7d767a7c80a1" />
+  <figcaption style="text-align:center;font-size:12px;color:#6b7280;font-style:italic;margin-top:6px;">Dashboard final gerado no wellbe_rpa_pipeline.ipynb</figcaption>
 </figure>
 
 ## Sumário
