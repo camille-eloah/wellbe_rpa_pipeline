@@ -160,7 +160,7 @@ class RPAMovieScraper:
             self.driver.execute_script(JS_CLICK, close_icon)
             LOGGER.debug("Card fechado com sucesso")
         except Exception as e:
-            LOGGER.debug("Nao foi possivel fechar o card: %s", e)
+            LOGGER.debug("Não foi possivel fechar o card: %s", e)
 
     def _log_card_evidence(self, card: Any, idx: int) -> None:
         """Loga evidencia por card para depurar falhas de captura em runtime."""
@@ -242,11 +242,11 @@ class RPAMovieScraper:
             reveal_paragraph = card.find_element(By.CSS_SELECTOR, "div.card-reveal p")
             return (reveal_paragraph.get_attribute("textContent") or "").strip()
         except Exception:
-            LOGGER.debug("Nao foi possivel confirmar reveal visivel no card %d", idx + 1)
+            LOGGER.debug("Não foi possível confirmar reveal visível no card %d", idx + 1)
             return ""
 
     def _extract_name_description_from_card(self, card: Any, idx: int, wait: WebDriverWait) -> tuple[str, str]:
-        """Extrai nome e descricao de um card com prioridade para card-reveal e fallback robusto."""
+        """Extrai nome e descrição de um card com prioridade para card-reveal e fallback robusto."""
         self._log_card_evidence(card=card, idx=idx)
         movie_name, description = self._read_reveal_texts(card)
 
@@ -281,9 +281,9 @@ class RPAMovieScraper:
 
             LOGGER.info("Processando filme %d/%d: '%s'", idx + 1, total_cards, movie_name)
             if not description:
-                LOGGER.warning("Descricao vazia para '%s'", movie_name)
+                LOGGER.warning("Descrição vazia para '%s'", movie_name)
             else:
-                LOGGER.info("Descricao capturada: %d caracteres", len(description))
+                LOGGER.info("Descrição capturada: %d caracteres", len(description))
 
             movies.append(MovieRecord(name=movie_name, description=description))
             self._safe_close_reveal(card)

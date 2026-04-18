@@ -36,7 +36,7 @@ class MySQLMovieRepository:
             import mysql.connector
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
-                "Pacote mysql-connector-python nao instalado. Rode: pip install -r requirements.txt"
+                "Pacote mysql-connector-python não instalado. Rode: pip install -r requirements.txt"
             ) from exc
 
         self.conn = mysql.connector.connect(
@@ -47,13 +47,13 @@ class MySQLMovieRepository:
             password=self.password,
             autocommit=False,
         )
-        LOGGER.info("Conexao MySQL estabelecida")
+        LOGGER.info("Conexão MySQL estabelecida")
 
     def close(self) -> None:
         if self.conn is not None:
             self.conn.close()
             self.conn = None
-            LOGGER.info("Conexao MySQL encerrada")
+            LOGGER.info("Conexão MySQL encerrada")
 
     def __enter__(self) -> "MySQLMovieRepository":
         self.connect()

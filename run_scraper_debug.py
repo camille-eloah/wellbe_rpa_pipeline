@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--show-browser",
         action="store_true",
-        help="Forca execucao com navegador visivel.",
+        help="Força execucao com navegador visivel.",
     )
     return parser.parse_args()
 
